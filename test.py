@@ -26,7 +26,7 @@ P4table = (2, 4, 3, 1)
 IPtable = (2, 6, 3, 1, 4, 8, 5, 7)
 def perm(inputbyte,permtable):
     outputbyte = 00000000
-    for index,element in enumerate(input):
+    for index,element in enumerate(inputbyte):
         if index >= element:
             """right shift the bit at element position to index position"""
             outputbyte = outputbyte | (input & (128 >> (element-1))) >> (index - (element-1))
