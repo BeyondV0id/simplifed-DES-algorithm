@@ -32,7 +32,8 @@ def bits_to_ints(bits):
     number = 0
     n = len(bits)
     for i in range(n):
-        number = number * 2 + bits[i]
+        power = 2 ** i
+        number += bits[i] * power
     return number
 
 def perm(input_bits,perm_table):
