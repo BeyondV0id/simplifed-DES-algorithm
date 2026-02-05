@@ -1,3 +1,4 @@
+
 IPtable = (2, 6, 3, 1, 4, 8, 5, 7)
 FPtable = (4, 1, 3, 5, 7, 2, 8, 6)
 
@@ -29,9 +30,9 @@ def int_to_bits(array, n):
 
 def bits_to_ints(bits):
     number = 0
-    for i in reversed(range(bits)):
-        power = 2 ** i
-        number += bits[i]*power
+    n = len(bits)
+    for i in range(n):
+        number = number * 2 + bits[i]
     return number
 
 def perm(input_bits,perm_table):
@@ -74,7 +75,7 @@ def keyGen(key_bits):
         return shifted_left+shifted_right
     
     #p10 permutation
-    permutated_key = perm(key_bits,IPtable)
+    permutated_key = perm(key_bits,P10table)
     shiftOne = leftShift(permutated_key)
     shiftTwo = leftShift(shiftOne)
     subkey1 = perm(shiftOne,P8table)
@@ -128,7 +129,8 @@ def fk(inputData,subKey):
         col1 = xor_result[5] * 2 + xor_result[6]
         val2 = S1table[row1][col1]
         binaryVal1 = [(val1>>1)&1, val1&1]
-        binaryVal2 = [(val2>>2)&1, val2&1]
+        binaryVal2 = [(val2>>1)&1, val2&1]
+        return binaryVal1+binaryVal2
 
     xor_result = XOR(expandedRightNibble,subKey)
     sbox_output = SBox(xor_result)
@@ -139,13 +141,47 @@ def fk(inputData,subKey):
 
     return left+rightNibble
 
+def encrypt(key_val, plaintext_val):
+    key_bits = int_to_bits(key_val, 10)
+    plain_bits = int_to_bits(plaintext_val, 8)
+
+    k1, k2 = keyGen(key_bits)
+
+    data = ip(plain_bits)
+    data = fk(data, k1)
+    data = swapNibbles(data)
+    data = fk(data, k2)
+    cipher_bits = fp(data)
+
+    return bits_to_ints(cipher_bits)
+
+def decrypt(key_val, ciphertext_val):
+    key_bits = int_to_bits(key_val, 10)
+    cipher_bits = int_to_bits(ciphertext_val, 8)
+
+    k1, k2 = keyGen(key_bits)
+
+    data = ip(cipher_bits)
+    data = fk(data, k2)
+    data = swapNibbles(data)
+    data = fk(data, k1)
+    plain_bits = fp(data)
+
+    return bits_to_ints(plain_bits)
 
 
+if __name__ == "__main__":
 
+    plaintext = 0b10101010
+    key = 0b1110001110
 
+    print("Plaintext:", plaintext)
 
+    cipher = encrypt(key, plaintext)
+    print("Cipher:", cipher)
 
-
+    decrypted = decrypt(key, cipher)
+    print("Decrypted:", decrypted)
 
 
 
